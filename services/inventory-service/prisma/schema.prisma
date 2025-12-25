@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stock {
+  id          String   @id @default(cuid())
+  sku         String   @unique @db.VarChar(100)
+  quantity    Int      @default(0)
+  reserved    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([sku])
+  @@map("stocks")
+}
+
+model StockMovement {
+  id          String   @id @default(cuid())
+  sku         String   @db.VarChar(100)
+  type        MovementType
+  quantity    Int
+  reason      String   @db.VarChar(255)
+  metadata    String?  @db.Text // JSON string for additional info
+  createdAt   DateTime @default(now())
+
+  @@index([sku])
+  @@index([type])
+  @@map("stock_movements")
+}
+
+enum MovementType {
+  INBOUND      // Stock added
+  OUTBOUND     // Stock removed
+  RESERVED     // Stock reserved for order
+  RELEASED     // Stock released from order
+  ADJUSTMENT   // Manual adjustment
+}
