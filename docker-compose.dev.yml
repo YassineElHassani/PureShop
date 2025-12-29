@@ -1,0 +1,166 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: pureshop-postgres-dev
+    environment:
+      POSTGRES_DB: pureshop
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pureshop-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: pureshop-rabbitmq-dev
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pureshop-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: auth-service
+    container_name: pureshop-auth-service-dev
+    command: npm run start:dev auth-service
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/pureshop"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+      JWT_SECRET: super-secret
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pureshop-network
+    restart: unless-stopped
+
+  catalog-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: catalog-service
+    container_name: pureshop-catalog-service-dev
+    command: npm run start:dev catalog-service
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/pureshop"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pureshop-network
+    restart: unless-stopped
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: inventory-service
+    container_name: pureshop-inventory-service-dev
+    command: npm run start:dev inventory-service
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/pureshop"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pureshop-network
+    restart: unless-stopped
+
+  orders-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: orders-service
+    container_name: pureshop-orders-service-dev
+    command: npm run start:dev orders-service
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/pureshop"
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pureshop-network
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        SERVICE_NAME: api-gateway
+    container_name: pureshop-api-gateway-dev
+    command: npm run start:dev api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/dist
+    depends_on:
+      - rabbitmq
+      - auth-service
+      - catalog-service
+      - inventory-service
+      - orders-service
+    networks:
+      - pureshop-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  pureshop-network:
+    driver: bridge
