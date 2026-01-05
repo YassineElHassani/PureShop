@@ -38,7 +38,26 @@ export class ErrorInterceptor implements NestInterceptor {
           return throwError(() => error);
         }
 
-        // Handle RPC exceptions from microservices
+        // Handle RPC exceptions from microservices (check direct properties first)
+        if (error?.statusCode && error?.message) {
+          this.logger.error(
+            `Microservice error: ${error.message}`,
+            error.stack,
+          );
+          return throwError(
+            () =>
+              new HttpException(
+                {
+                  statusCode: error.statusCode,
+                  message: error.message,
+                  timestamp: new Date().toISOString(),
+                },
+                error.statusCode,
+              ),
+          );
+        }
+
+        // Handle RPC exceptions from microservices (nested error object)
         if (error?.error?.statusCode) {
           this.logger.error(
             `Microservice error: ${error.error.message}`,
@@ -58,7 +77,9 @@ export class ErrorInterceptor implements NestInterceptor {
         }
 
         // Log unexpected errors
-        this.logger.error('Unexpected error occurred', error.stack);
+        this.logger.error('Unexpected error occurred');
+        this.logger.error('Error details:', JSON.stringify(error, null, 2));
+        this.logger.error('Error stack:', error.stack);
 
         return throwError(
           () =>

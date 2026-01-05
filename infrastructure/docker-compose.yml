@@ -220,6 +220,75 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # Payment Service
+  payment-service:
+    build:
+      context: ../services/payment-service
+      dockerfile: Dockerfile
+    container_name: pureshop-payment-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3005
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      RABBITMQ_URL: ${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-pureshop_user}:${POSTGRES_PASSWORD:-pureshop_password}@postgres:5432/${POSTGRES_DB:-pureshop_db}?schema=payment
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_your_stripe_secret_key}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_your_webhook_secret}
+      STRIPE_API_VERSION: ${STRIPE_API_VERSION:-2023-10-16}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      IDEMPOTENCY_KEY_ENABLED: ${IDEMPOTENCY_KEY_ENABLED:-true}
+    ports:
+      - "3005:3005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pureshop-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ../services/notification-service
+      dockerfile: Dockerfile
+    container_name: pureshop-notification-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3006
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      RABBITMQ_URL: ${RABBITMQ_URL:-amqp://guest:guest@rabbitmq:5672}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_SECURE: ${MAIL_SECURE:-false}
+      MAIL_USER: ${MAIL_USER:-your-email@gmail.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-your-app-password}
+      MAIL_FROM: ${MAIL_FROM:-noreply@pureshop.com}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-PureShop}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      WEBSOCKET_NAMESPACE: ${WEBSOCKET_NAMESPACE:-notifications}
+      WEBSOCKET_CORS_ORIGIN: ${WEBSOCKET_CORS_ORIGIN:-*}
+      MAX_NOTIFICATION_HISTORY: ${MAX_NOTIFICATION_HISTORY:-100}
+    ports:
+      - "3006:3006"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - pureshop-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 networks:
   pureshop-network:
     driver: bridge

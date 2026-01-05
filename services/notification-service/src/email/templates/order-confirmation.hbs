@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: #007bff; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+      .content { background: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }
+      .footer { background: #f8f9fa; padding: 10px; text-align: center; font-size: 12px; color: #6c757d; }
+      table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+      th, td { padding: 10px; text-align: left; border-bottom: 1px solid #dee2e6; }
+      th { background: #e9ecef; font-weight: bold; }
+      .total { font-size: 18px; font-weight: bold; color: #007bff; }
+      .order-id { font-family: monospace; color: #6c757d; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Order Confirmation</h1>
+      </div>
+      
+      <div class="content">
+        <p>Dear {{customerName}},</p>
+        <p>Thank you for your order! Your order has been successfully created and is being processed.</p>
+        
+        <h2>Order Details</h2>
+        <p><strong>Order ID:</strong> <span class="order-id">{{orderId}}</span></p>
+        <p><strong>Order Date:</strong> {{orderDate}}</p>
+        
+        <h3>Items Ordered</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each items}}
+            <tr>
+              <td>{{this.sku}}</td>
+              <td>{{this.name}}</td>
+              <td>{{this.quantity}}</td>
+              <td>{{../currency}} {{this.unitPrice}}</td>
+              <td>{{../currency}} {{this.total}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        
+        <h3>Order Summary</h3>
+        <p><strong>Subtotal:</strong> {{currency}} {{subtotal}}</p>
+        <p><strong>Tax:</strong> {{currency}} {{tax}}</p>
+        {{#if shipping}}
+        <p><strong>Shipping:</strong> {{currency}} {{shipping}}</p>
+        {{/if}}
+        <p class="total"><strong>Total:</strong> {{currency}} {{totalPrice}}</p>
+        
+        <p>You will receive a payment confirmation email shortly. If you have any questions, please contact us at <strong>{{supportEmail}}</strong>.</p>
+        
+        <p>Best regards,<br><strong>PureShop Team</strong></p>
+      </div>
+      
+      <div class="footer">
+        <p>&copy; 2026 PureShop. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

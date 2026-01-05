@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: #ffc107; color: #333; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+      .content { background: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }
+      .footer { background: #f8f9fa; padding: 10px; text-align: center; font-size: 12px; color: #6c757d; }
+      .alert-box { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0; }
+      .metric { display: inline-block; width: 45%; margin: 10px 2.5%; padding: 10px; background: white; border: 1px solid #dee2e6; border-radius: 5px; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>⚠ Stock Alert</h1>
+      </div>
+      
+      <div class="content">
+        <div class="alert-box">
+          <h2 style="margin-top: 0;">Stock Below Threshold</h2>
+          <p>A product in your inventory has fallen below the minimum threshold.</p>
+        </div>
+        
+        <h2>Product Information</h2>
+        <p><strong>Product SKU:</strong> {{productSku}}</p>
+        <p><strong>Product Name:</strong> {{productName}}</p>
+        
+        <h2>Stock Details</h2>
+        <div style="text-align: center;">
+          <div class="metric">
+            <div style="font-size: 24px; color: #dc3545; font-weight: bold;">{{currentStock}}</div>
+            <div>Current Stock</div>
+          </div>
+          <div class="metric">
+            <div style="font-size: 24px; color: #ffc107; font-weight: bold;">{{threshold}}</div>
+            <div>Minimum Threshold</div>
+          </div>
+        </div>
+        
+        <p><strong>Alert Time:</strong> {{alertDate}}</p>
+        
+        <h2>Action Required</h2>
+        <p>Please review your inventory and consider placing a reorder to avoid stockouts. This product may need urgent restocking.</p>
+        
+        <p>Best regards,<br><strong>PureShop Inventory System</strong></p>
+      </div>
+      
+      <div class="footer">
+        <p>&copy; 2026 PureShop. All rights reserved.</p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2024 YouShop. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

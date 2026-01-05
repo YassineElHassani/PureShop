@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: #dc3545; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+      .content { background: #f8f9fa; padding: 20px; border: 1px solid #dee2e6; }
+      .footer { background: #f8f9fa; padding: 10px; text-align: center; font-size: 12px; color: #6c757d; }
+      .alert { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 15px; border-radius: 5px; margin: 20px 0; }
+      .retry-link { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Payment Failed</h1>
+      </div>
+      
+      <div class="content">
+        <div class="alert">
+          <h2 style="margin-top: 0;">We were unable to process your payment</h2>
+        </div>
+        
+        <h2>What Happened?</h2>
+        <p><strong>Order ID:</strong> {{orderId}}</p>
+        <p><strong>Failure Reason:</strong> {{reason}}</p>
+        <p><strong>Error Code:</strong> {{failureCode}}</p>
+        
+        <h2>What to Do Next</h2>
+        <p>Please try the following:</p>
+        <ul>
+          <li>Check that your card details are correct</li>
+          <li>Verify you have sufficient funds</li>
+          <li>Try a different payment method</li>
+          <li>Contact your bank if the issue persists</li>
+        </ul>
+        
+        <p style="margin-top: 20px;">
+          <a href="{{frontendUrl}}/orders/{{orderId}}" class="retry-link">Retry Payment</a>
+        </p>
+        
+        <p>If you need assistance, please contact our support team at <strong>{{supportEmail}}</strong>. We're here to help!</p>
+        
+        <p>Best regards,<br><strong>PureShop Team</strong></p>
+      </div>
+      
+      <div class="footer">
+        <p>&copy; 2026 PureShop. All rights reserved.</p>
+      </div>
+      </div>
+    </div>
+  </body>
+</html>

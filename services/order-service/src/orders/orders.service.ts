@@ -19,7 +19,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     @Inject('RABBITMQ_SERVICE') private rabbitClient: ClientProxy,
-  ) {}
+  ) { }
 
   async createOrder(userId: string, createOrderDto: CreateOrderDto) {
     try {
@@ -327,6 +327,19 @@ export class OrdersService {
       this.logger.error(`Failed to get orders by status: ${error.message}`);
       throw error;
     }
+  }
+
+  private async notifyPaymentRequired(order: any): Promise<void> {
+    this.rabbitClient.emit('payment.required', {
+      orderId: order.id,
+      userId: order.userId,
+      totalAmount: order.totalPrice,
+      items: order.items.map((item: any) => ({
+        name: item.sku,
+        quantity: item.quantity,
+        price: item.unitPrice,
+      })),
+    });
   }
 
   private formatOrderResponse(order: any) {

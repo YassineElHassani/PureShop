@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Payment {
+  id                  String          @id @default(cuid())
+  orderId             String          @unique @db.VarChar(255)
+  stripeSessionId     String          @unique @db.VarChar(255)
+  paymentIntentId     String?         @unique @db.VarChar(255)
+  customerId          String          @db.VarChar(255)
+  amount              Float
+  currency            String          @default("usd")
+  status              PaymentStatus   @default(PENDING)
+  paymentMethod       String?         @db.VarChar(100)
+  receiptEmail        String?         @db.VarChar(255)
+  receiptUrl          String?         @db.Text
+  failureReason       String?         @db.Text
+  failureCode         String?         @db.VarChar(100)
+  idempotencyKey      String?         @unique @db.VarChar(255)
+  metadata            String?         @db.Text // JSON string
+  chargeId            String?         @unique @db.VarChar(255)
+  refundedAmount      Float           @default(0)
+  refundedAt          DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  paymentLogs         PaymentLog[]
+
+  @@index([orderId])
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+model PaymentLog {
+  id            String   @id @default(cuid())
+  paymentId     String
+  payment       Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  eventType     String   @db.VarChar(100)
+  stripeEventId String?  @db.VarChar(255)
+  status        String   @db.VarChar(50)
+  statusCode    Int?
+  message       String?  @db.Text
+  metadata      String?  @db.Text // JSON string
+  createdAt     DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("payment_logs")
+}
+
+model PaymentIdempotency {
+  id           String   @id @default(cuid())
+  idempotencyKey String @unique @db.VarChar(255)
+  orderId      String   @db.VarChar(255)
+  result       String   @db.Text // JSON response
+  createdAt    DateTime @default(now())
+
+  @@index([orderId])
+  @@map("payment_idempotency")
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+  CANCELED
+}

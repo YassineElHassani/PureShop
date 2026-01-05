@@ -137,13 +137,6 @@ export class AuthService {
   async logout(userId: string) {
     this.logger.log(`User logged out: ${userId}`);
     
-    // In a production environment, you would:
-    // 1. Add the token to a blacklist (Redis)
-    // 2. Invalidate all active sessions for this user
-    // 3. Clear any cached user data
-    // For now, we'll just log the logout and return success
-    // The client should remove the token from storage
-    
     return {
       message: 'Logged out successfully',
       success: true,

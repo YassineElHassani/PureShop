@@ -14,6 +14,7 @@ import { AuthController } from './controllers/auth.controller';
 import { CatalogController } from './controllers/catalog.controller';
 import { InventoryController } from './controllers/inventory.controller';
 import { OrdersController } from './controllers/orders.controller';
+import { PaymentController } from './controllers/payment.controller';
 import { HealthController } from './controllers/health.controller';
 import { AppController } from './controllers/app.controller';
 import { AuthMiddleware } from './middleware/auth.middleware';
@@ -43,6 +44,7 @@ import { validate } from './config/env.validation';
     CatalogController,
     InventoryController,
     OrdersController,
+    PaymentController,
   ],
   providers: [
     JwtStrategy,
